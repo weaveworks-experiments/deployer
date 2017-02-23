@@ -5,3 +5,7 @@ authors = ["Jonathan Lange <jml@mumak.net>"]
 
 [dependencies]
 iron = "0.4.*"
+simplelog = "^0.4.2"
+
+[dependencies.logger]
+git = "https://github.com/iron/logger.git"
