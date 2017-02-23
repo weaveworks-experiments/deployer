@@ -4,16 +4,16 @@ extern crate iron;
 extern crate logger;
 extern crate simplelog;
 
+extern crate deployer;
+
 use clap::{Arg, App};
 use iron::prelude::*;
-use iron::status;
 use logger::Logger;
 use simplelog::{LogLevelFilter, Config, SimpleLogger};
 
 // TODO
 // - prometheus metrics for http requests
 // - prometheus metrics for hyper in general?
-// - factor out actual handlers
 
 fn main() {
     let matches = App::new("deployer")
@@ -35,11 +35,7 @@ fn main() {
 
     let (logger_before, logger_after) = Logger::new(None);
 
-    fn hello_world(_: &mut Request) -> IronResult<Response> {
-        Ok(Response::with((status::Ok, "Hello World!")))
-    }
-
-    let mut chain = Chain::new(hello_world);
+    let mut chain = Chain::new(deployer::hello_world);
     chain.link_before(logger_before);
     chain.link_after(logger_after);
 
