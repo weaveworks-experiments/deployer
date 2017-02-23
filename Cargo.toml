@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Jonathan Lange <jml@mumak.net>"]
 
 [dependencies]
+clap = "~2.19.0"
 iron = "0.4.*"
 simplelog = "^0.4.2"
 
