@@ -6,6 +6,8 @@ authors = ["Jonathan Lange <jml@mumak.net>"]
 [dependencies]
 clap = "~2.19.0"
 iron = "0.4.*"
+prometheus = "0.2.8"
+router = "0.4.*"
 simplelog = "^0.4.2"
 
 [dependencies.logger]

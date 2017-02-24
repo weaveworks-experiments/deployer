@@ -2,6 +2,8 @@
 extern crate clap;
 extern crate iron;
 extern crate logger;
+#[macro_use]
+extern crate prometheus;
 extern crate simplelog;
 
 extern crate deployer;
@@ -12,8 +14,10 @@ use logger::Logger;
 use simplelog::{LogLevelFilter, Config, SimpleLogger};
 
 // TODO
-// - prometheus metrics for http requests
 // - prometheus metrics for hyper in general?
+// - quickly check to see what metrics we export in Weave golang stuff
+// - add endpoint to handle alerts
+// - send deploy request to flux
 
 fn main() {
     let matches = App::new("deployer")
@@ -35,7 +39,18 @@ fn main() {
 
     let (logger_before, logger_after) = Logger::new(None);
 
-    let mut chain = Chain::new(deployer::hello_world);
+    let request_duration = register_histogram_vec!(
+            "deployer_http_request_duration_seconds",
+            "Time spent on HTTP requests",
+            &["method", "status_code"]
+    ).unwrap();
+
+    let prometheus_config = deployer::PrometheusConfig{
+        duration: request_duration,
+    };
+
+    let mut chain = Chain::new(deployer::api());
+    chain.link_around(prometheus_config);
     chain.link_before(logger_before);
     chain.link_after(logger_after);
 
