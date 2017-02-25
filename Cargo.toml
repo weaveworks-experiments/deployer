@@ -4,10 +4,15 @@ version = "0.1.0"
 authors = ["Jonathan Lange <jml@mumak.net>"]
 
 [dependencies]
+chrono = { version = "0.3", features = ["serde"] }
 clap = "~2.19.0"
+log = "0.3.6"
 iron = "0.4.*"
 prometheus = "0.2.8"
 router = "0.4.*"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 simplelog = "^0.4.2"
 
 [dependencies.logger]
