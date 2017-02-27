@@ -1,0 +1,50 @@
+Goal: Build Linux binary on Mac
+
+(to be deployed in Docker image on Kubernetes cluster)
+
+Approach #1: Cross-compile with Cargo
+
+$ rustup target add x86_64-unknown-linux-musl
+$ cargo build --release --target=x86_64-unknown-linux-musl
+
+Compiles, but fails to link:
+
+    = note: ld: unknown option: --as-needed
+    clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+I can override the linker path using the cargo ``.config`` file, but I don't
+know where to get a linux linker for OS X.
+
+Experimenting with specifying a different linker.
+
+
+Approach #2: Build inside a Docker image
+
+* no "official" Docker image for building with Rust
+* a few likely candidates:
+
+   * https://github.com/jimmycuadra/docker-rust
+   * https://github.com/fnichol/docker-rust
+   * https://github.com/Hoverbear/docker-rust
+
+
+
+References:
+
+* https://blog.rust-lang.org/2016/05/13/rustup.html
+
+
+
+Other stuff:
+
+* Example http api: https://github.com/brson/httptest
+* Datetime library: https://docs.rs/chrono/0.3.0/chrono/index.html
+* Serialize / deserialize: https://docs.serde.rs/serde/index.html
+* rust book: https://doc.rust-lang.org/book/structs.html#tuple-structs
+* example handler: https://github.com/gnunicorn/clippy-service/blob/master/src/handlers.rs
+* prometheus lib: https://docs.rs/prometheus/0.2.8/prometheus/enum.Error.html
+
+   * PR to add protobuf exporter to prometheus lib: https://github.com/pingcap/rust-prometheus/pull/97
+
+* logging library: http://ironframework.io/doc/log/index.html
+

@@ -19,6 +19,8 @@ mod instrumentation;
 
 pub use instrumentation::PrometheusConfig;
 
+// TODO: Build into Docker image
+
 /// Top-level API definition.
 pub fn api() -> router::Router {
     let mut router = router::Router::new();
