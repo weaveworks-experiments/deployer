@@ -29,10 +29,15 @@ fn main() {
              .value_name("LOG_LEVEL")
              .default_value("Info")
              .help("Level to log at")
-             .possible_values(&["Trace", "Debug", "Info", "Warn", "Error", "Off"])
-             .takes_value(true))
+             .possible_values(&["Trace", "Debug", "Info", "Warn", "Error", "Off"]))
+        .arg(Arg::with_name("port")
+             .long("port")
+             .value_name("PORT")
+             .default_value("80")
+             .help("Port to listen on"))
         .get_matches();
 
+    let port = value_t_or_exit!(matches, "port", u16);
     let log_level = value_t_or_exit!(matches, "log-level", LogLevelFilter);
 
     let _log = SimpleLogger::init(log_level, Config::default());
@@ -54,5 +59,5 @@ fn main() {
     chain.link_before(logger_before);
     chain.link_after(logger_after);
 
-    let _server = Iron::new(chain).http("localhost:3000").unwrap();
+    let _server = Iron::new(chain).http(("127.0.0.1", port)).unwrap();
 }

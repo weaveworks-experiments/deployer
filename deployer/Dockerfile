@@ -1,4 +1,4 @@
 FROM alpine:3.3
 COPY deployer /deployer
-EXPOSE 3000
+EXPOSE 80
 ENTRYPOINT [ "/deployer" ]
