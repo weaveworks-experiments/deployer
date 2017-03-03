@@ -8,11 +8,13 @@ IMAGE_TAG := $(shell ./tools/image-tag)
 UPTODATE := .uptodate
 BUILD_IMAGE := deployer-build
 
-EXE := target/x86_64-unknown-linux-musl/release/deployer
+TARGET := x86_64-unknown-linux-musl
+REGISTRY_CACHE := $(shell pwd)/.cargo-$(TARGET)
+EXE := target/$(TARGET)/release/deployer
 RUST_FILES := $(shell find . -name '*.rs')
 
 # Get a list of directories containing Dockerfiles
-DOCKERFILES := $(shell find . -type f -name Dockerfile ! -path "./tools/*" ! -path "./vendor/*")
+DOCKERFILES := $(shell find . -type f -name Dockerfile ! -path "./tools/*" ! -path "./vendor/*" ! -path "./.cargo-*")
 UPTODATE_FILES := $(patsubst %/Dockerfile,%/$(UPTODATE),$(DOCKERFILES))
 
 SUDO := $(shell docker info >/dev/null 2>&1 || echo "sudo -E")
@@ -33,6 +35,8 @@ all: $(UPTODATE_FILES)
 deployer/$(EXE): $(EXE)
 	cp $(EXE) deployer/
 
+deployer-build/$(UPTODATE): deployer-build/build.sh
+
 deployer/$(UPTODATE): deployer/$(EXE)
 
 DOCKER_IMAGE_DIRS := $(patsubst %/Dockerfile,%,$(DOCKERFILES))
@@ -49,15 +53,25 @@ images:
 
 ifeq ($(BUILD_IN_CONTAINER),true)
 
-$(EXE) test: $(BUILD_IMAGE)/$(UPTODATE)
+# We want to save the whole of /cargo between runs, but if we do that by
+# sharing a mountpoint with the local filesystem, we hit a bug in libgit2 vs
+# vboxsf:
+#
+# - https://github.com/rust-lang/cargo/issues/2808
+# - https://github.com/libgit2/libgit2/issues/3845
+#
+# Instead, share the registry/cache, which is where most of the data is.
+
+$(EXE) test: $(BUILD_IMAGE)/$(UPTODATE) $(RUST_FILES) Cargo.lock
 	$(SUDO) docker run $(RM) -ti \
+		-v $(REGISTRY_CACHE):/cargo/registry/cache \
 		-v $(shell pwd):/src \
 		$(IMAGE_PREFIX)/$(BUILD_IMAGE) $@
 
 else
 
 $(EXE): $(BUILD_IMAGE)/$(UPTODATE) $(RUST_FILES) Cargo.lock
-	cargo build --release --target=x86_64-unknown-linux-musl
+	cargo build --release --target=$(TARGET)
 
 test: $(BUILD_IMAGE)/$(UPTODATE)
 	cargo test
