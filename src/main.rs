@@ -19,6 +19,13 @@ use simplelog::{LogLevelFilter, Config, SimpleLogger};
 // - add endpoint to handle alerts
 // - send deploy request to flux
 
+// TODO: There's a weird thing where Ctrl-C won't interrupt the service when
+// it's run from `docker run`. jml doesn't understand exactly what's going on,
+// but some internet trawling suggests it's something special about pid 1.
+//
+// https://github.com/getsentry/sentry-cli/blob/29cdbadfbfc6573a739630a7a70342831ebcc2bd/src/utils.rs#L105-L126
+// is one possible work-around.
+
 fn main() {
     let matches = App::new("deployer")
         .version(crate_version!())
